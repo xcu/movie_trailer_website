@@ -1,6 +1,9 @@
 import webbrowser
 import os
 import re
+from ConfigParser import ConfigParser
+from movie import Movie, NO_IMAGE
+
 
 # Styles and scripting for the page
 main_page_head = '''
@@ -125,6 +128,7 @@ movie_tile_content = '''
 </div>
 '''
 
+
 def create_movie_tiles_content(movies):
     # The HTML content for this section of the page
     content = ''
@@ -142,6 +146,7 @@ def create_movie_tiles_content(movies):
         )
     return content
 
+
 def open_movies_page(movies):
     # Create or overwrite the output file
     output_file = open('fresh_tomatoes.html', 'w')
@@ -156,3 +161,26 @@ def open_movies_page(movies):
     # open the output file in the browser
     url = os.path.abspath(output_file.name)
     webbrowser.open('file://' + url, new=2) # open in a new tab, if possible
+
+
+def load_movies(movies_file):
+    movies = []
+    expected_options_defaults = {'trailer_youtube_url': '',
+                                 'poster_image_url': NO_IMAGE}
+    cp = ConfigParser(expected_options_defaults)
+    cp.read(movies_file)
+
+    for title in cp.sections():
+        # get all the expected options and pass them as kwargs
+        movies.append(Movie(title,
+                    **dict(
+                (val, cp.get(title, val)) for
+                                val in expected_options_defaults.iterkeys()
+                           )
+        ))
+    # display movies in alphabetic order
+    return sorted(movies, key=lambda m: m.title.lower())
+
+
+if __name__ == '__main__':
+    open_movies_page(load_movies('movies'))
