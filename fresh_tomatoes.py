@@ -81,6 +81,13 @@ main_page_head = '''
             $(this).next("div").show("fast", showNext);
           });
         });
+        $(document).ready(function(){
+            for (i=0; i<$("h2").length; i++){
+                text = $($("h2")[i]).text();
+                if (text.length > 22)
+                    $("h2").eq(i).text(text.substring(0, 22) + "...");
+            }
+        });
     </script>
 </head>
 '''
